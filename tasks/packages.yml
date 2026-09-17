@@ -83,15 +83,17 @@
   changed_when: false
 
 
-- name: Ensure software-properties-common is installed
-  ansible.builtin.apt:
-    name: software-properties-common
-    state: present
-  become: true
 
-- name: Add Ghostty PPA repository
-  ansible.builtin.apt_repository:
-    repo: ppa:mkasberg/ghostty-ubuntu
+
+
+- name: Add Ghostty PPA repository (deb822)
+  ansible.builtin.deb822_repository:
+    name: ghostty-ubuntu
+    types: [deb]
+    uris: "https://ppa.launchpadcontent.net/mkasberg/ghostty-ubuntu/ubuntu"
+    suites: ["{{ ansible_facts['distribution_release'] }}"]
+    components: [main]
+    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x0721FDF5FECB88DC6920361657C8EF455CEAE491"
     state: present
   become: true
 
