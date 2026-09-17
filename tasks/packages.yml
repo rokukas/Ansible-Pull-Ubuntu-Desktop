@@ -81,3 +81,24 @@
 - name: Refresh font cache
   ansible.builtin.command: fc-cache -f
   changed_when: false
+
+
+- name: Ensure software-properties-common is installed
+  ansible.builtin.apt:
+    name: software-properties-common
+    state: present
+  become: true
+
+- name: Add Ghostty PPA repository
+  ansible.builtin.apt_repository:
+    repo: ppa:mkasberg/ghostty-ubuntu
+    state: present
+  become: true
+
+- name: Install Ghostty
+  ansible.builtin.apt:
+    name: ghostty
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
