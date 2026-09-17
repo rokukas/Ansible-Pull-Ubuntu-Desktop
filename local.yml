@@ -9,4 +9,8 @@
       changed_when: False
 
   tasks:
-    - include_tasks: tasks/packages.yml
+    - name: Include modular task lists
+      ansible.builtin.include_tasks: "{{ item}}"
+      loop:
+        - tasks/packages.yml
+        - tasks/os_configuration.yml
