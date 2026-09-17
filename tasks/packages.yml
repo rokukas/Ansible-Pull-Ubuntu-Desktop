@@ -104,3 +104,45 @@
     update_cache: true
     cache_valid_time: 3600
   become: true
+
+
+
+
+- name: Download Atuin install script
+  ansible.builtin.get_url:
+    url: https://setup.atuin.sh
+    dest: /tmp/atuin-setup.sh
+    mode: '0755'
+
+- name: Run Atuin non-interactive installer
+  ansible.builtin.command:
+    cmd: /tmp/atuin-setup.sh --non-interactive
+    creates: /home/rokas/.atuin/bin/atuin
+  become: true
+  become_user: rokas
+  environment:
+    HOME: "/home/rokas"
+
+- name: Clean up Atuin setup script
+  ansible.builtin.file:
+    path: /tmp/atuin-setup.sh
+    state: absent
+
+- name: Add Atuin to user PATH in .bashrc
+  ansible.builtin.lineinfile:
+    path: /home/rokas/.bashrc
+    line: 'export PATH="$HOME/.atuin/bin:$PATH"'
+    state: present
+    create: true
+
+- name: Initialize Atuin shell integration in .bashrc
+  ansible.builtin.lineinfile:
+    path: /home/rokas/.bashrc
+    line: 'eval "$(atuin init bash)"'
+    state: present
+    create: true
+
+
+
+
+
