@@ -172,3 +172,26 @@
 
 
 
+
+
+  - name: Add Ulauncher PPA repository (deb822)
+  ansible.builtin.deb822_repository:
+    name: ulauncher
+    types: [deb]
+    uris: "https://ppa.launchpadcontent.net/agornostal/ulauncher/ubuntu"
+    suites: ["{{ ansible_facts['distribution_release'] }}"]
+    components: [main]
+    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x22DD4972F5524823"
+    state: present
+  become: true
+
+- name: Install Ulauncher
+  ansible.builtin.apt:
+    name: ulauncher
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+
+
