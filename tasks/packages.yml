@@ -49,3 +49,35 @@
     update_cache: true
     cache_valid_time: 3600
   become: true
+
+- name: Install Yazi preview plugins and dependencies
+  ansible.builtin.apt:
+    name:
+      - chafa        # Image previews in terminal
+      - ffmpegthumbnailer # Video previews
+      - poppler-utils # PDF previews (pdftoppm)
+      - jq           # JSON formatting/previews
+      - fd-find      # File searching
+      - ripgrep     # Content searching
+      - fzf          # Quick navigation
+    state: present
+  become: true
+
+
+
+- name: Create local fonts directory
+  ansible.builtin.file:
+    path: "/home/rokas/.local/share/fonts"
+    state: directory
+    mode: '0755'
+
+- name: Download JetBrains Mono Nerd Font
+  ansible.builtin.unarchive:
+    src: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
+    dest: "/home/rokas/.local/share/fonts"
+    remote_src: true
+    creates: "/home/rokas/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf"
+
+- name: Refresh font cache
+  ansible.builtin.command: fc-cache -f
+  changed_when: false
