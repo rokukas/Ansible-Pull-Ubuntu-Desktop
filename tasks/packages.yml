@@ -27,3 +27,25 @@
     cmd: auto-cpufreq --install
     creates: /etc/systemd/system/auto-cpufreq.service
   become: true
+
+- name: Download Yazi GPG keyring
+  ansible.builtin.get_url:
+    url: https://yazi-rs.github.io/builds/yazi-keyring.gpg
+    dest: /usr/share/keyrings/yazi-keyring.gpg
+    mode: '0644'
+  become: true
+
+- name: Add Yazi APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main"
+    filename: yazi
+    state: present
+  become: true
+
+- name: Install Yazi
+  ansible.builtin.apt:
+    name: yazi
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
