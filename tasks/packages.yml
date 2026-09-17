@@ -22,9 +22,8 @@
     creates: /usr/local/bin/auto-cpufreq
   become: true
 
-- name: Enable and start auto-cpufreq daemon service
-  ansible.builtin.systemd:
-    name: auto-cpufreq
-    state: started
-    enabled: true
+- name: Install and enable auto-cpufreq systemd daemon
+  ansible.builtin.command:
+    cmd: auto-cpufreq --install
+    creates: /etc/systemd/system/auto-cpufreq.service
   become: true
