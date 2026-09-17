@@ -181,7 +181,7 @@
     uris: "https://ppa.launchpadcontent.net/agornostal/ulauncher/ubuntu"
     suites: ["{{ ansible_facts['distribution_release'] }}"]
     components: [main]
-    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x22DD4972F5524823"
+    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xEA8CACC073C350A4BB5C32E48A05777F083FAD5F"
     state: present
   become: true
 
@@ -192,6 +192,4 @@
     update_cache: true
     cache_valid_time: 3600
   become: true
-
-
 
