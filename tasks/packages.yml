@@ -6,3 +6,25 @@
       - tmux
       - vim
       - bat
+
+- name: Clone auto-cpufreq repository
+  ansible.builtin.git:
+    repo: https://github.com/AdnanHodzic/auto-cpufreq.git
+    dest: /tmp/auto-cpufreq
+    version: master
+    depth: 1
+  become: true
+
+- name: Run auto-cpufreq installer
+  ansible.builtin.command:
+    cmd: ./auto-cpufreq-installer --install
+    chdir: /tmp/auto-cpufreq
+    creates: /usr/local/bin/auto-cpufreq
+  become: true
+
+- name: Enable and start auto-cpufreq daemon service
+  ansible.builtin.systemd:
+    name: auto-cpufreq
+    state: started
+    enabled: true
+  become: true
