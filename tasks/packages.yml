@@ -146,3 +146,25 @@
 
 
 
+
+
+
+
+
+
+- name: Add FSearch stable PPA
+  ansible.builtin.apt_repository:
+    repo: ppa:christian-boxdoerfer/fsearch-stable
+    state: present
+  become: true
+
+- name: Install FSearch
+  ansible.builtin.apt:
+    name: fsearch
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+
+
