@@ -151,10 +151,14 @@
 
 
 
-
-- name: Add FSearch stable PPA
-  ansible.builtin.apt_repository:
-    repo: ppa:christian-boxdoerfer/fsearch-stable
+- name: Add FSearch stable PPA (deb822)
+  ansible.builtin.deb822_repository:
+    name: fsearch-stable
+    types: [deb]
+    uris: "https://ppa.launchpadcontent.net/christian-boxdoerfer/fsearch-stable/ubuntu"
+    suites: ["{{ ansible_facts['distribution_release'] }}"]
+    components: [main]
+    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x75555AFF5215AD9DBFD8CDB952B2FFB2DC496F40"
     state: present
   become: true
 
