@@ -6,6 +6,7 @@
       - tmux
       - vim
       - bat
+      - vlc
 
 - name: Clone auto-cpufreq repository
   ansible.builtin.git:
