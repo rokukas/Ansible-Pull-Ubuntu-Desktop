@@ -8,6 +8,7 @@
       - bat
       - vlc
       - chromium-browser
+      - remmina
 
 - name: Clone auto-cpufreq repository
   ansible.builtin.git:
