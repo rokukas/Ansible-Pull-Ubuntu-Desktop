@@ -1,9 +1,11 @@
 ---
-- name: Remove unsupported Ghostwriter PPA from previous setup
-  ansible.builtin.apt_repository:
-    repo: ppa:wereturtle/ppa
+- name: Remove unsupported Ghostwriter PPA source from previous setup
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/wereturtle-ubuntu-ppa-{{ ansible_distribution_release }}.{{ item }}"
     state: absent
-    update_cache: false
+  loop:
+    - sources
+    - list
 
 - name: Install repository management tools
   ansible.builtin.apt:
