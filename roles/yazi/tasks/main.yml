@@ -1,0 +1,28 @@
+---
+- name: Download Yazi APT keyring
+  ansible.builtin.get_url:
+    url: https://yazi-rs.github.io/builds/yazi-keyring.gpg
+    dest: /usr/share/keyrings/yazi-keyring.gpg
+    mode: '0644'
+
+- name: Add Yazi APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main"
+    filename: yazi
+    state: present
+    update_cache: true
+
+- name: Install Yazi and preview dependencies
+  ansible.builtin.apt:
+    name:
+      - yazi
+      - chafa
+      - ffmpegthumbnailer
+      - poppler-utils
+      - jq
+      - fd-find
+      - ripgrep
+      - fzf
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

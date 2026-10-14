@@ -10,5 +10,8 @@
 
   roles:
     - system_packages
+    - ghostwriter
+    - yazi
+    - ulauncher
     - applications
     - os_configuration

@@ -1,0 +1,13 @@
+---
+- name: Add Ulauncher PPA
+  ansible.builtin.apt_repository:
+    repo: ppa:agornostal/ulauncher
+    state: present
+    update_cache: true
+
+- name: Install Ulauncher
+  ansible.builtin.apt:
+    name: ulauncher
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

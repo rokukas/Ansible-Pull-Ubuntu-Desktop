@@ -21,12 +21,15 @@ Ansible prompts for sudo access.
 local.yml                         # Entry playbook
 roles/
   system_packages/tasks/main.yml  # Base packages and Ubuntu components
-  applications/tasks/main.yml     # Third-party apps and app-specific setup
+  ghostwriter/tasks/main.yml      # Ghostwriter package from Ubuntu Universe
+  yazi/tasks/main.yml             # Yazi repository, package, and previews
+  ulauncher/tasks/main.yml        # Ulauncher PPA and package
+  applications/tasks/main.yml     # Other applications and app-specific setup
   os_configuration/tasks/main.yml # Per-user shell and command configuration
 ```
 
 Add related tasks to the existing role. Create another role when a group of
 tasks has its own clear responsibility or needs to be enabled independently.
 
-Applications configured here include Ghostwriter, Yazi, Ulauncher, Ghostty,
-FSearch, auto-cpufreq, Atuin, and JetBrains Mono Nerd Font.
+Applications configured here include Ghostwriter (from Ubuntu Universe), Yazi,
+Ulauncher, Ghostty, FSearch, auto-cpufreq, Atuin, and JetBrains Mono Nerd Font.
