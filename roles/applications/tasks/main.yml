@@ -1,0 +1,165 @@
+---
+- name: Add Ghostwriter PPA
+  ansible.builtin.apt_repository:
+    repo: ppa:wereturtle/ppa
+    state: present
+    update_cache: true
+
+- name: Add Ulauncher PPA
+  ansible.builtin.apt_repository:
+    repo: ppa:agornostal/ulauncher
+    state: present
+    update_cache: true
+
+- name: Install Ghostwriter and Ulauncher
+  ansible.builtin.apt:
+    name:
+      - ghostwriter
+      - ulauncher
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Download Yazi APT keyring
+  ansible.builtin.get_url:
+    url: https://yazi-rs.github.io/builds/yazi-keyring.gpg
+    dest: /usr/share/keyrings/yazi-keyring.gpg
+    mode: '0644'
+
+- name: Add Yazi APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main"
+    filename: yazi
+    state: present
+    update_cache: true
+
+- name: Install Yazi and preview dependencies
+  ansible.builtin.apt:
+    name:
+      - yazi
+      - chafa
+      - ffmpegthumbnailer
+      - poppler-utils
+      - jq
+      - fd-find
+      - ripgrep
+      - fzf
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Add Ghostty PPA repository
+  ansible.builtin.deb822_repository:
+    name: ghostty-ubuntu
+    types: [deb]
+    uris: https://ppa.launchpadcontent.net/mkasberg/ghostty-ubuntu/ubuntu
+    suites: ["{{ ansible_facts['distribution_release'] }}"]
+    components: [main]
+    signed_by: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x0721FDF5FECB88DC6920361657C8EF455CEAE491
+    state: present
+
+- name: Install Ghostty
+  ansible.builtin.apt:
+    name: ghostty
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Add FSearch stable PPA
+  ansible.builtin.deb822_repository:
+    name: fsearch-stable
+    types: [deb]
+    uris: https://ppa.launchpadcontent.net/christian-boxdoerfer/fsearch-stable/ubuntu
+    suites: ["{{ ansible_facts['distribution_release'] }}"]
+    components: [main]
+    signed_by: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x75555AFF5215AD9DBFD8CDB952B2FFB2DC496F40
+    state: present
+
+- name: Install FSearch
+  ansible.builtin.apt:
+    name: fsearch
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Clone auto-cpufreq repository
+  ansible.builtin.git:
+    repo: https://github.com/AdnanHodzic/auto-cpufreq.git
+    dest: /tmp/auto-cpufreq
+    version: master
+    depth: 1
+
+- name: Run auto-cpufreq installer
+  ansible.builtin.command:
+    cmd: ./auto-cpufreq-installer --install
+    chdir: /tmp/auto-cpufreq
+    creates: /usr/local/bin/auto-cpufreq
+
+- name: Install and enable auto-cpufreq systemd daemon
+  ansible.builtin.command:
+    cmd: auto-cpufreq --install
+    creates: /etc/systemd/system/auto-cpufreq.service
+
+- name: Download JetBrains Mono Nerd Font archive
+  ansible.builtin.get_url:
+    url: https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
+    dest: /tmp/JetBrainsMono.tar.xz
+    mode: '0644'
+
+- name: Create local fonts directory
+  ansible.builtin.file:
+    path: "{{ desktop_home }}/.local/share/fonts"
+    state: directory
+    owner: "{{ desktop_user }}"
+    group: "{{ desktop_user }}"
+    mode: '0755'
+
+- name: Extract JetBrains Mono Nerd Font
+  ansible.builtin.unarchive:
+    src: /tmp/JetBrainsMono.tar.xz
+    dest: "{{ desktop_home }}/.local/share/fonts"
+    remote_src: true
+    creates: "{{ desktop_home }}/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf"
+  become_user: "{{ desktop_user }}"
+
+- name: Refresh font cache
+  ansible.builtin.command: fc-cache -f
+  become_user: "{{ desktop_user }}"
+  changed_when: false
+
+- name: Download Atuin install script
+  ansible.builtin.get_url:
+    url: https://setup.atuin.sh
+    dest: /tmp/atuin-setup.sh
+    mode: '0755'
+
+- name: Run Atuin non-interactive installer
+  ansible.builtin.command:
+    cmd: /tmp/atuin-setup.sh --non-interactive
+    creates: "{{ desktop_home }}/.atuin/bin/atuin"
+  become_user: "{{ desktop_user }}"
+  environment:
+    HOME: "{{ desktop_home }}"
+
+- name: Clean up Atuin setup script
+  ansible.builtin.file:
+    path: /tmp/atuin-setup.sh
+    state: absent
+
+- name: Add Atuin to user PATH in .bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ desktop_home }}/.bashrc"
+    line: 'export PATH="$HOME/.atuin/bin:$PATH"'
+    state: present
+    create: true
+    owner: "{{ desktop_user }}"
+    group: "{{ desktop_user }}"
+
+- name: Initialize Atuin shell integration in .bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ desktop_home }}/.bashrc"
+    line: 'eval "$(atuin init bash)"'
+    state: present
+    create: true
+    owner: "{{ desktop_user }}"
+    group: "{{ desktop_user }}"

@@ -1,0 +1,16 @@
+---
+- name: Ensure local bin directory exists
+  ansible.builtin.file:
+    path: "{{ desktop_home }}/.local/bin"
+    state: directory
+    owner: "{{ desktop_user }}"
+    group: "{{ desktop_user }}"
+    mode: '0755'
+
+- name: Link batcat as bat for the desktop user
+  ansible.builtin.file:
+    src: /usr/bin/batcat
+    dest: "{{ desktop_home }}/.local/bin/bat"
+    state: link
+    owner: "{{ desktop_user }}"
+    group: "{{ desktop_user }}"

@@ -1,16 +1,14 @@
-- hosts: localhost
-  connection: localhost
+---
+- name: Configure Ubuntu desktop
+  hosts: localhost
+  connection: local
   become: true
 
-  pre_tasks:
-    - name: update repositories
-      apt:
-        update_cache: yes
-      changed_when: False
+  vars:
+    desktop_user: "{{ lookup('env', 'USER') }}"
+    desktop_home: "{{ lookup('env', 'HOME') }}"
 
-  tasks:
-    - name: Include modular task lists
-      ansible.builtin.include_tasks: "{{ item}}"
-      loop:
-        - tasks/packages.yml
-        - tasks/os_configuration.yml
+  roles:
+    - system_packages
+    - applications
+    - os_configuration

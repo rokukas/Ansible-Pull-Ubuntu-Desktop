@@ -1,0 +1,28 @@
+---
+- name: Install repository management tools
+  ansible.builtin.apt:
+    name: software-properties-common
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Enable the Ubuntu Universe component
+  ansible.builtin.command:
+    cmd: add-apt-repository --yes universe
+  changed_when: false
+
+- name: Install base desktop and administration packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - htop
+      - mc
+      - tmux
+      - vim
+      - bat
+      - vlc
+      - chromium-browser
+      - remmina
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
