@@ -32,6 +32,10 @@
       - chromium-browser
       - remmina
       - gnome-shell-extension-manager
+      - ca-certificates
+      - curl
+      - gpg
+      - lsb-release
     state: present
     update_cache: true
     cache_valid_time: 3600
