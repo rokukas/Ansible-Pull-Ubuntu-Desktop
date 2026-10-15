@@ -38,7 +38,19 @@
     repo: https://github.com/AdnanHodzic/auto-cpufreq.git
     dest: /tmp/auto-cpufreq
     version: master
-    depth: 1
+
+- name: Check whether the auto-cpufreq checkout is shallow
+  ansible.builtin.command:
+    cmd: git rev-parse --is-shallow-repository
+    chdir: /tmp/auto-cpufreq
+  register: auto_cpufreq_is_shallow
+  changed_when: false
+
+- name: Fetch complete Git history for an existing shallow checkout
+  ansible.builtin.command:
+    cmd: git fetch --unshallow origin
+    chdir: /tmp/auto-cpufreq
+  when: auto_cpufreq_is_shallow.stdout == 'true'
 
 - name: Run auto-cpufreq installer
   ansible.builtin.command:
