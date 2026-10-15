@@ -71,8 +71,8 @@
     - name: Confirm the HashiCorp APT signing key fingerprint
       ansible.builtin.assert:
         that:
-          - "'798AEC654E5C15428C8E42EEAA16FCBCA621E701' in terraform_key_details.stdout"
-        fail_msg: The downloaded HashiCorp APT signing key fingerprint did not match the documented key.
+          - "'D55C0D1AC78A8D8126CB631CFC9CA96ACA026560' in terraform_key_details.stdout"
+        fail_msg: The downloaded HashiCorp APT signing key fingerprint did not match HashiCorp's current key.
 
     - name: Install HashiCorp's APT keyring
       ansible.builtin.copy:
