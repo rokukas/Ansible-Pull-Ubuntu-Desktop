@@ -10,8 +10,12 @@
 
   roles:
     - system_packages
+    - terraform
+    - role: snap_packages
+      tags:
+        - snap_packages
     - ghostwriter
     - yazi
-    - ulauncher
+    # - ulauncher
     - applications
     - os_configuration

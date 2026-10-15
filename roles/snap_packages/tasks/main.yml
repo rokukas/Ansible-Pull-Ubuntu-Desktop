@@ -1,0 +1,27 @@
+---
+- name: Install snapd
+  ansible.builtin.apt:
+    name: snapd
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Check whether configured snaps are installed
+  ansible.builtin.command:
+    argv:
+      - snap
+      - list
+      - "{{ item }}"
+  loop: "{{ snap_packages }}"
+  register: snap_package_checks
+  changed_when: false
+  failed_when: false
+
+- name: Install missing snaps
+  ansible.builtin.command:
+    argv:
+      - snap
+      - install
+      - "{{ item.item }}"
+  loop: "{{ snap_package_checks.results }}"
+  when: item.rc != 0

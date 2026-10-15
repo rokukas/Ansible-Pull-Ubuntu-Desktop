@@ -1,0 +1,131 @@
+---
+- name: Get the system APT architecture
+  ansible.builtin.command:
+    cmd: dpkg --print-architecture
+  register: terraform_apt_architecture
+  changed_when: false
+
+- name: Verify HashiCorp publishes Terraform for this Ubuntu system
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == 'Ubuntu'
+      - ansible_distribution_release in ['resolute', 'noble', 'jammy']
+      - terraform_apt_architecture.stdout in ['amd64', 'arm64', 'armhf', 'i386', 's390x']
+    fail_msg: >-
+      HashiCorp Terraform APT packages are not supported for Ubuntu codename
+      '{{ ansible_distribution_release }}' on architecture
+      '{{ terraform_apt_architecture.stdout }}'.
+
+- name: Refresh APT metadata and install repository prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gpg
+      - python3-debian
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create a temporary directory for HashiCorp's signing key
+  ansible.builtin.tempfile:
+    state: directory
+    path: /tmp
+    prefix: hashicorp-key-
+  register: terraform_key_temp
+  become: false
+
+- name: Fetch, verify, and install HashiCorp's APT signing key
+  block:
+    - name: Download HashiCorp's ASCII-armored signing key
+      ansible.builtin.get_url:
+        url: https://apt.releases.hashicorp.com/gpg
+        dest: "{{ terraform_key_temp.path }}/hashicorp.asc"
+        mode: '0600'
+      become: false
+
+    - name: Dearmor HashiCorp's signing key
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --dearmor
+          - --yes
+          - --output
+          - "{{ terraform_key_temp.path }}/hashicorp.gpg"
+          - "{{ terraform_key_temp.path }}/hashicorp.asc"
+      changed_when: false
+      become: false
+
+    - name: Read the signing key fingerprint
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --quiet
+          - --show-keys
+          - --with-colons
+          - "{{ terraform_key_temp.path }}/hashicorp.gpg"
+      register: terraform_key_details
+      changed_when: false
+      become: false
+
+    - name: Confirm the HashiCorp APT signing key fingerprint
+      ansible.builtin.assert:
+        that:
+          - "'798AEC654E5C15428C8E42EEAA16FCBCA621E701' in terraform_key_details.stdout"
+        fail_msg: The downloaded HashiCorp APT signing key fingerprint did not match the documented key.
+
+    - name: Install HashiCorp's APT keyring
+      ansible.builtin.copy:
+        src: "{{ terraform_key_temp.path }}/hashicorp.gpg"
+        dest: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0644'
+
+  always:
+    - name: Remove the temporary signing key files
+      ansible.builtin.file:
+        path: "{{ terraform_key_temp.path }}"
+        state: absent
+      become: false
+
+- name: Configure the HashiCorp DEB822 repository for this system
+  ansible.builtin.deb822_repository:
+    name: hashicorp
+    types:
+      - deb
+    uris:
+      - https://apt.releases.hashicorp.com
+    suites:
+      - "{{ ansible_distribution_release }}"
+    components:
+      - main
+    architectures:
+      - "{{ terraform_apt_architecture.stdout }}"
+    signed_by: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    state: present
+
+- name: Refresh APT metadata for the HashiCorp repository
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Check the Terraform package candidate
+  ansible.builtin.command:
+    cmd: apt-cache policy terraform
+  register: terraform_apt_policy
+  changed_when: false
+
+- name: Confirm Terraform is available from HashiCorp's repository
+  ansible.builtin.assert:
+    that:
+      - "'https://apt.releases.hashicorp.com' in terraform_apt_policy.stdout"
+    fail_msg: >-
+      A Terraform package candidate from https://apt.releases.hashicorp.com
+      was not found for Ubuntu {{ ansible_distribution_release }} on
+      {{ terraform_apt_architecture.stdout }}.
+
+- name: Install Terraform
+  ansible.builtin.apt:
+    name: terraform
+    state: present

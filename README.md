@@ -21,6 +21,8 @@ Ansible prompts for sudo access.
 local.yml                         # Entry playbook
 roles/
   system_packages/tasks/main.yml  # Base packages and Ubuntu components
+  terraform/tasks/main.yml       # HashiCorp APT source and Terraform
+  snap_packages/                  # Configured Snap packages (defaults + tasks)
   ghostwriter/tasks/main.yml      # Ghostwriter package from Ubuntu Universe
   yazi/tasks/main.yml             # Yazi repository, package, and previews
   ulauncher/tasks/main.yml        # Ulauncher PPA and package
@@ -31,5 +33,7 @@ roles/
 Add related tasks to the existing role. Create another role when a group of
 tasks has its own clear responsibility or needs to be enabled independently.
 
-Applications configured here include Ghostwriter (from Ubuntu Universe), Yazi,
-Ulauncher, Ghostty, FSearch, auto-cpufreq, Atuin, and JetBrains Mono Nerd Font.
+Applications configured here include Keeper Security (Snap), Ghostwriter (from
+Ubuntu Universe), Yazi, Ulauncher, Ghostty, FSearch, auto-cpufreq, Atuin, and
+JetBrains Mono Nerd Font. Terraform is installed from HashiCorp's architecture-
+scoped APT repository.
