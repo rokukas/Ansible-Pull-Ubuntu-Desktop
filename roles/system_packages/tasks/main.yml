@@ -37,7 +37,6 @@
       - gpg
       - lsb-release
       - zathura
-      - psearch
     state: present
     update_cache: true
     cache_valid_time: 3600
