@@ -9,3 +9,4 @@ snap_packages:
   - notepad-plus-plus
   - onlyoffice-desktopeditors
   - sublime-text
+  - keepassxc
