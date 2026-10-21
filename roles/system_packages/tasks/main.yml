@@ -41,6 +41,8 @@
       - neovim
       - obs-studio
       - rclone
+      - ltunify
+      - mpv
     state: present
     update_cache: true
     cache_valid_time: 3600
