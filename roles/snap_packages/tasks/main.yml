@@ -11,7 +11,7 @@
     argv:
       - snap
       - list
-      - "{{ item }}"
+      - "{{ item.name if item is mapping else item }}"
   loop: "{{ snap_packages }}"
   register: snap_package_checks
   changed_when: false
@@ -19,9 +19,6 @@
 
 - name: Install missing snaps
   ansible.builtin.command:
-    argv:
-      - snap
-      - install
-      - "{{ item.item }}"
+    argv: "{{ ['snap', 'install'] + (['--classic'] if (item.item is mapping and item.item.classic | default(false)) else []) + [item.item.name if item.item is mapping else item.item] }}"
   loop: "{{ snap_package_checks.results }}"
   when: item.rc != 0

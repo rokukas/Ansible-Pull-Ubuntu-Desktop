@@ -10,3 +10,5 @@ snap_packages:
   - onlyoffice-desktopeditors
   - sublime-text
   - keepassxc
+  - name: dbeaver-ce
+    classic: true
